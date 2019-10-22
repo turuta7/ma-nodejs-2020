@@ -40,17 +40,18 @@ class Storage {
 
   async store(key, data) {
     const res = await this.list().then(result => result);
-    this.limit -= 1;
-    if (this.limit >= 0) {
-      if (!key || !data) {
-        console.log(`no key or data`);
-        return;
-      }
-      return new Promise((resolve, reject) => {
+
+    if (!key || !data) {
+      console.log(`no key or data`);
+      return;
+    }
+    return new Promise((resolve, reject) => {
+      this.limit -= 1;
+      if (this.limit >= 0) {
         resolve(res.set(key, data));
-      });
-    } else reject(new Error(`connection limit exceeded, try again later`));
-    this.limit += 1;
+      } else reject(new Error(`connection limit exceeded, try again later`));
+      this.limit += 1;
+    });
   }
 
   async fetch(key) {
@@ -70,7 +71,7 @@ class Storage {
     return new Promise((resolve, reject) => {
       this.limit -= 1;
       if (this.limit >= 0) {
-        for (let pair of res) {
+        for (const pair of res) {
           const boolean = pair[1].includes(beginningOfKey);
           if (boolean === true) {
             keyOut.push(pair[0]);
@@ -88,7 +89,7 @@ class Storage {
       this.limit -= 1;
       if (this.limit >= 0) {
         arguments[0].map(x => {
-          for (let key in x) {
+          for (const key in x) {
             this.key.set(key, x[key]);
           }
           return "";
@@ -145,7 +146,7 @@ storage.fetch("key3").then(x => {
 });
 
 // test#5
-// storage.store("firstKey", "firstNewTest").then(result => console.log(result));
+storage.store("firstKey", "firstNewTest").then(result => console.log(result));
 // storage.list().then(result => console.log(result));
 
 // test#6
