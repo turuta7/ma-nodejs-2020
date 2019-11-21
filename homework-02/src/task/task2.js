@@ -21,8 +21,6 @@ class Earth extends Planet {
     return `${this.planetVolumeCalculation()}, People: ${this.people} billion`;
   }
 }
+const result = new Earth('Earth', 12742, 7.5);
 
-function myPlanets(planet = 'Mars', diameter = 6780, people = 0) {
-  return new Earth(planet, diameter, people);
-}
-module.exports = myPlanets;
+module.exports = result;

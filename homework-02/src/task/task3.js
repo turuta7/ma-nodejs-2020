@@ -1,4 +1,4 @@
-function pormise(timer = 2000, text = 'default text') {
+function promise(timer = 2000, text = 'default text') {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(`milliseconds = ${timer}, resolve text: ${text}`);
@@ -6,4 +6,4 @@ function pormise(timer = 2000, text = 'default text') {
   });
 }
 
-module.exports = pormise;
+module.exports = promise(5000, 'my first text');
