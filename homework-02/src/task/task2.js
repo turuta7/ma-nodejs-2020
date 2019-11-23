@@ -2,12 +2,15 @@ class Planet {
   constructor(planet, diameter) {
     this.planet = planet;
     this.diameter = diameter;
+    this.volume = this.volume();
+  }
+
+  volume() {
+    return (4 / 3) * Math.PI * (this.diameter / 2) ** 3;
   }
 
   planetVolumeCalculation() {
-    return `Planet: ${this.planet}, volume ${Math.round(
-      (4 / 3) * Math.PI * (this.diameter / 2) ** 3,
-    )}`;
+    return `Planet: ${this.planet}, volume ${this.volume}`;
   }
 }
 
