@@ -10,7 +10,7 @@ class Planet {
   }
 
   planetVolumeCalculation() {
-    return `Planet: ${this.planet}, volume ${this.volume}}`;
+    return `Planet: ${this.planet}, volume ${this.volume}`;
   }
 }
 
