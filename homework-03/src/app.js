@@ -4,7 +4,7 @@ class CheckNumber {
     this.counter = 2;
   }
 
-  checkForANaturalNumber(num) {
+  async checkForANaturalNumber(num) {
     for (let i = 2; i < num; i += 1) {
       if (num % i === 0) return false;
     }
