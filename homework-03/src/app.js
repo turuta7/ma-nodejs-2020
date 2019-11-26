@@ -4,7 +4,7 @@ class CheckNumber {
     this.counter = 2;
   }
 
-  async checkForANaturalNumber(num) {
+  checkForANaturalNumber(num) {
     for (let i = 2; i < num; i += 1) {
       if (num % i === 0) return false;
     }
@@ -13,8 +13,8 @@ class CheckNumber {
   }
 
   run() {
-    setInterval(async () => {
-      await this.checkForANaturalNumber((this.counter += 1));
+    setInterval(() => {
+      this.checkForANaturalNumber((this.counter += 1));
     }, 0);
 
     setInterval(() => {
