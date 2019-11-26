@@ -18,7 +18,7 @@ class CheckNumber {
     }, 0);
 
     setInterval(() => {
-      console.log(this.naturalNumber);
+      console.log(`-- IN PROCESS -- Biggest prime number found:${this.naturalNumber}`);
     }, 1000);
   }
 }
