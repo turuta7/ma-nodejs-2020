@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ignore-path .gitignore . --fix",
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "start2": "node src/app_v2.js",
+    "start3": "node src/app_v3.js"
   },
   "husky": {
     "hooks": {
