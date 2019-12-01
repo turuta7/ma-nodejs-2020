@@ -1,0 +1,28 @@
+{
+  "name": "homework-04",
+  "version": "1.0.0",
+  "description": "Homework-04 Install project: npm ci",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint --ignore-path .gitignore . --fix",
+    "start": "node src/app.js",
+    "app2": "node src/app_2.js",
+    "app3": "node src/app_3.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "husky": "^3.0.9",
+    "prettier": "^1.18.2"
+  }
+}
