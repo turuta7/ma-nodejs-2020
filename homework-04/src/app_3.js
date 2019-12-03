@@ -1,4 +1,4 @@
-const { throwDiceAsync: throwDice, set } = require('./func/function');
+const { throwDice, set } = require('./func/function');
 
 async function run() {
   let result = 0;

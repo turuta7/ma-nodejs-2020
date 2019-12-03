@@ -1,11 +1,6 @@
 const min = 0;
 const max = 6;
 
-async function throwDiceAsync() {
-  const rand = min + Math.random() * (max + 1 - min);
-  return Math.floor(rand);
-}
-
 function throwDicePromise() {
   const rand = min + Math.random() * (max + 1 - min);
   return new Promise((resolve) => {
@@ -18,12 +13,12 @@ function throwDice() {
   return Math.floor(rand);
 }
 
-function set(time, text) {
+function set(time) {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(text);
+      resolve();
     }, time);
   });
 }
 
-module.exports = { throwDiceAsync, throwDicePromise, throwDice, set };
+module.exports = { throwDicePromise, throwDice, set };
