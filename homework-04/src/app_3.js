@@ -1,10 +1,9 @@
-const { throwDice, set } = require('./func/function');
+const { throwDiceAsync: throwDice, set } = require('./func/function');
 
 async function run() {
   let result = 0;
   try {
-    await set(700);
-    const firstThrow = await throwDice();
+    const firstThrow = await throwDice(700);
     if (firstThrow === 0) {
       throw new Error('Lost dice');
     }
@@ -16,8 +15,7 @@ async function run() {
     return 'First throw = 0';
   }
   try {
-    await set(1300);
-    const secondThrow = await throwDice();
+    const secondThrow = await throwDice(1300);
     if (secondThrow === 0) {
       throw new Error('Lost dice');
     }
