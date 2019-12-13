@@ -10,20 +10,20 @@ if (process.argv) {
   // eslint-disable-next-line no-restricted-syntax
   for (const i in process.argv) {
     if (i >= 2) {
-      const result = process.argv[i]
+      const nameVariable = process.argv[i]
         .split('--')[1]
         .split('=')[0]
         .toLocaleUpperCase();
 
-      if (result === 'RATE') {
-        const sum = Number(process.argv[i].split('--')[1].split('=')[1]);
-        if (sum > 0) RATE = sum;
+      if (nameVariable === 'RATE') {
+        const value = Number(process.argv[i].split('--')[1].split('=')[1]);
+        if (value > 0) RATE = value;
       }
-      if (result === 'LIMIT') {
-        const sum = Number(process.argv[i].split('--')[1].split('=')[1]);
-        if (sum > 0) LIMIT = sum;
+      if (nameVariable === 'LIMIT') {
+        const value = Number(process.argv[i].split('--')[1].split('=')[1]);
+        if (value > 0) LIMIT = value;
       }
-      if (result === 'COLOR') {
+      if (nameVariable === 'COLOR') {
         if (process.argv[i].split('--')[1].split('=')[1] === 'true') {
           COLOR = true;
         } else if (process.argv[i].split('--')[1].split('=')[1] === 'false') COLOR = false;
