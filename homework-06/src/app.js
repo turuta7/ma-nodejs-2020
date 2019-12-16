@@ -45,8 +45,8 @@ const text = `!!! ATTENTION: Available memory is under the defined limit !!!`;
 // cleaning the console and displaying information from memory
 setInterval(() => {
   console.clear();
-  const totalMem = (os.totalmem() / 1024000).toFixed();
-  const freeMem = (os.freemem() / 1024000).toFixed(3);
+  const totalMem = (os.totalmem() / 1024 / 1024).toFixed();
+  const freeMem = (os.freemem() / 1024 / 1024).toFixed(3);
   const busyMem = totalMem - freeMem;
   const resultDelta = delta - busyMem;
 
@@ -63,11 +63,11 @@ setInterval(() => {
   console.log(`Total system memory: ${totalMem} MB `);
   if (freeMem < LIMIT) {
     util.inspect.styles.number = 'red';
-    const sss = util.inspect(Number(freeMem), {
+    const freeMemRed = util.inspect(Number(freeMem), {
       colors: COLOR,
     });
 
-    console.log(`Free memory available:${sss} MB`);
+    console.log(`Free memory available:${freeMemRed} MB`);
     util.inspect.styles.number = 'white';
   } else {
     console.log(`Free memory available: ${freeMem} MB`);
