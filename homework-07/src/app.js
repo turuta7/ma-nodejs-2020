@@ -23,7 +23,7 @@ http
           // authorization user
           if (!auth(req.headers.authorization)) {
             res.setHeader('Content-Type', 'application/json');
-            res.statusCode = 400;
+            res.statusCode = 401;
             res.write(
               JSON.stringify({
                 message: 'Unauthorized',
@@ -94,7 +94,7 @@ http
           // authorization user
           if (!auth(req.headers.authorization)) {
             res.setHeader('Content-Type', 'application/json');
-            res.statusCode = 400;
+            res.statusCode = 401;
             res.write(
               JSON.stringify({
                 message: 'Unauthorized',
