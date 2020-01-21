@@ -1,15 +1,23 @@
 const os = require('os');
-const util = require('util');
 
 let RATE = process.env.RATE || 1000;
-let LIMIT = process.env.LIMIT || 300;
+let LIMIT = process.env.LIMIT || 500;
 let COLOR = process.env.COLOR || true;
+
+let red = '';
+let green = '';
+
+if (COLOR) {
+  red = `\x1b[31m`;
+  green = '\x1b[32m';
+}
 
 // check is process.argv and variable assignment
 if (process.argv) {
   // eslint-disable-next-line no-restricted-syntax
   for (const i in process.argv) {
     if (i >= 2) {
+      const processArgv = Number(process.argv[i].split('--')[1].split('=')[1]);
       switch (
         process.argv[i]
           .split('--')[1]
@@ -17,19 +25,19 @@ if (process.argv) {
           .toLocaleUpperCase()
       ) {
         case 'RATE':
-          if (Number(process.argv[i].split('--')[1].split('=')[1]) > 0) {
-            RATE = Number(process.argv[i].split('--')[1].split('=')[1]);
+          if (processArgv > 0) {
+            RATE = processArgv;
           }
           break;
         case 'LIMIT':
-          if (Number(process.argv[i].split('--')[1].split('=')[1]) > 0) {
-            LIMIT = Number(process.argv[i].split('--')[1].split('=')[1]);
+          if (processArgv > 0) {
+            LIMIT = processArgv;
           }
           break;
         case 'COLOR':
-          if (process.argv[i].split('--')[1].split('=')[1] === 'true') {
+          if (processArgv === 'true') {
             COLOR = true;
-          } else if (process.argv[i].split('--')[1].split('=')[1] === 'false') COLOR = false;
+          } else if (processArgv === 'false') COLOR = false;
           break;
 
         default:
@@ -42,7 +50,6 @@ if (process.argv) {
 let delta = 0;
 const text = `!!! ATTENTION: Available memory is under the defined limit !!!`;
 
-// cleaning the console and displaying information from memory
 setInterval(() => {
   console.clear();
   const totalMem = (os.totalmem() / 1024 / 1024).toFixed();
@@ -50,37 +57,22 @@ setInterval(() => {
   const busyMem = totalMem - freeMem;
   const resultDelta = delta - busyMem;
 
-  util.inspect.styles.string = 'red';
-  if (resultDelta <= 0) {
-    util.inspect.styles.number = 'red';
-  } else {
-    util.inspect.styles.number = 'green';
-  }
-  const colorDeltaMem = util.inspect(Number(resultDelta.toFixed(3)), {
-    colors: COLOR,
-  });
+  console.log(`\x1b[37mTotal system memory: ${totalMem} MB`);
 
-  console.log(`Total system memory: ${totalMem} MB `);
   if (freeMem < LIMIT) {
-    util.inspect.styles.number = 'red';
-    const freeMemRed = util.inspect(Number(freeMem), {
-      colors: COLOR,
-    });
-
-    console.log(`Free memory available:${freeMemRed} MB`);
-    util.inspect.styles.number = 'white';
+    console.log(`Free memory available: ${red}${Number(freeMem)} MB\x1b[37m`);
   } else {
     console.log(`Free memory available: ${freeMem} MB`);
   }
 
   console.log(`Allocated memory ${busyMem} MB`);
-  console.log(`Delta for previous allocated memory value: ${colorDeltaMem} MB`);
+  if (resultDelta <= 0) {
+    console.log(`Delta for previous allocated memory value: ${red}${resultDelta.toFixed(3)} MB`);
+  } else {
+    console.log(`Delta for previous allocated memory value: ${green}${resultDelta.toFixed(3)} MB`);
+  }
   if (LIMIT > freeMem) {
-    console.log(
-      util.inspect(text, {
-        colors: COLOR,
-      }),
-    );
+    console.log(`${red + text}\x1b[37m`);
   }
   delta = busyMem;
 }, RATE);
