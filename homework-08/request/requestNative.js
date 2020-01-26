@@ -1,19 +1,14 @@
-const axios = require('axios');
+// const request = require('request');
+const rp = require('promise-request-retry');
+
+// const rp = require('request-promise-native');
 const qs = require('qs');
-
-const axiosRetry = require('axios-retry');
-
-axiosRetry(axios, {
-  retries: 1,
-  retryDelay: (retryCount) => {
-    return retryCount * 100;
-  },
-});
 
 const User = require('../src/DB/user');
 
 const AuthStr = `Basic ${Buffer.from(`${User.user}:${User.pass}`).toString('base64')}`;
-class Axios {
+
+class RequestNative {
   constructor(url, met = 'get', limit = undefined) {
     this.limit = limit;
     this.url = url;
@@ -24,16 +19,19 @@ class Axios {
       data: qs.stringify({
         limit: this.limit,
       }),
+      retry: 2,
+      delay: 300,
       headers: { Authorization: AuthStr },
+      json: true,
     };
   }
 
   resultData() {
     if (this.options.url)
       return new Promise((resolve, reject) => {
-        axios(this.options)
+        rp(this.options)
           .then((result) => {
-            resolve(result.data);
+            resolve(result);
           })
           .catch(() => {
             reject(JSON.stringify({ message: 'error axios' }));
@@ -62,4 +60,4 @@ class Axios {
   }
 }
 
-module.exports = Axios;
+module.exports = RequestNative;

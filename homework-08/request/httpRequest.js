@@ -1,43 +1,44 @@
-const axios = require('axios');
+const http = require('http');
 const qs = require('qs');
-
-const axiosRetry = require('axios-retry');
-
-axiosRetry(axios, {
-  retries: 1,
-  retryDelay: (retryCount) => {
-    return retryCount * 100;
-  },
-});
 
 const User = require('../src/DB/user');
 
 const AuthStr = `Basic ${Buffer.from(`${User.user}:${User.pass}`).toString('base64')}`;
-class Axios {
+
+class HttpRequest {
   constructor(url, met = 'get', limit = undefined) {
     this.limit = limit;
     this.url = url;
     this.method = met;
     this.options = {
-      method: this.method,
-      url: this.url,
+      method: this.method.toUpperCase(),
+      hostname: this.url,
       data: qs.stringify({
         limit: this.limit,
       }),
+
       headers: { Authorization: AuthStr },
+      json: true,
     };
   }
 
   resultData() {
     if (this.options.url)
-      return new Promise((resolve, reject) => {
-        axios(this.options)
-          .then((result) => {
-            resolve(result.data);
-          })
-          .catch(() => {
-            reject(JSON.stringify({ message: 'error axios' }));
+      return new Promise((resolve) => {
+        http.request(this.options, (res) => {
+          console.log(this.options);
+          res.setEncoding('utf8');
+          let fullData = '';
+          res.on('data', (chank) => {
+            fullData += chank;
           });
+          console.log(fullData);
+          res.on('end', () => {
+            res.data = fullData;
+
+            resolve(res);
+          });
+        });
       });
 
     return false;
@@ -62,4 +63,4 @@ class Axios {
   }
 }
 
-module.exports = Axios;
+module.exports = HttpRequest;
