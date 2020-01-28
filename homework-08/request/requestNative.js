@@ -1,39 +1,50 @@
-// const request = require('request');
-const rp = require('promise-request-retry');
+const { RetryPromiseNative } = require('request-promise-native-retry');
 
-// const rp = require('request-promise-native');
-const qs = require('qs');
+const retryableStatusCodes = [404, 500, 400];
+const retryableCodes = ['ECONNRESET', 'ETIMEDOUT', 'ENOTFOUND'];
+const retryOptions = {
+  retries: 4,
+  minTimeout: 10,
+  maxTimeout: 300,
+  randomize: false,
+};
+
+const retryPromiseNative = new RetryPromiseNative(
+  retryableCodes,
+  retryableStatusCodes,
+  retryOptions,
+);
+const rp = retryPromiseNative.getClient();
 
 const User = require('../src/DB/user');
 
 const AuthStr = `Basic ${Buffer.from(`${User.user}:${User.pass}`).toString('base64')}`;
 
 class RequestNative {
-  constructor(url, met = 'get', limit = undefined) {
-    this.limit = limit;
-    this.url = url;
-    this.method = met;
-    this.options = {
-      method: this.method,
-      url: this.url,
-      data: qs.stringify({
-        limit: this.limit,
-      }),
-      retry: 2,
-      delay: 300,
-      headers: { Authorization: AuthStr },
-      json: true,
-    };
-  }
-
-  resultData() {
-    if (this.options.url)
+  resultData(url, met, limit) {
+    if (url)
       return new Promise((resolve, reject) => {
-        rp(this.options)
+        rp({
+          method: met,
+          url,
+          body: { limit },
+          headers: { Authorization: AuthStr },
+          json: true,
+          transform(body, response) {
+            if (response.headers['content-type'] === 'application/json') {
+              response.body = JSON.parse(body);
+            }
+            return response;
+          },
+        })
           .then((result) => {
             resolve(result);
           })
-          .catch(() => {
+          .catch((e) => {
+            if (e) {
+              if (this.delay !== 0) this.delay -= 1;
+              reject(JSON.stringify(e.response.body));
+            }
             reject(JSON.stringify({ message: 'error axios' }));
           });
       });
@@ -41,17 +52,9 @@ class RequestNative {
     return false;
   }
 
-  async response() {
+  async response(url, met = 'get', limit = 100) {
     try {
-      const res = await this.resultData();
-      const random = Math.floor(Math.random() * 3);
-      if (random === 1) {
-        throw new Error(
-          JSON.stringify({
-            message: 'Internal error occurred',
-          }),
-        );
-      }
+      const res = await this.resultData(url, met, limit);
       return res;
     } catch (error) {
       if (error.message) return JSON.parse(error.message);

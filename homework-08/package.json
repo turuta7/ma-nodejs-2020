@@ -30,10 +30,11 @@
     "install": "^0.13.0",
     "npm": "^6.13.6",
     "promise-request-retry": "^1.0.2",
-    "qs": "^6.9.1",
     "readline-sync": "^1.4.10",
     "request": "^2.88.0",
+    "request-promise": "^4.2.5",
     "request-promise-native": "^1.0.8",
+    "request-promise-native-retry": "^1.0.3",
     "retry-axios": "^2.1.1",
     "retry-request": "^4.1.1"
   }

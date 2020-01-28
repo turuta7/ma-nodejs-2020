@@ -1,64 +1,82 @@
 const http = require('http');
-const qs = require('qs');
 
 const User = require('../src/DB/user');
 
 const AuthStr = `Basic ${Buffer.from(`${User.user}:${User.pass}`).toString('base64')}`;
 
 class HttpRequest {
-  constructor(url, met = 'get', limit = undefined) {
-    this.limit = limit;
-    this.url = url;
-    this.method = met;
-    this.options = {
-      method: this.method.toUpperCase(),
-      hostname: this.url,
-      data: qs.stringify({
-        limit: this.limit,
-      }),
-
-      headers: { Authorization: AuthStr },
+  // eslint-disable-next-line class-methods-use-this
+  resultData(url, met, limit) {
+    const myURL = new URL(url);
+    let headers;
+    if (limit === undefined) {
+      headers = { Authorization: AuthStr };
+    } else headers = { Authorization: AuthStr, limit };
+    //  console.log(myURL);
+    // const options = url2.format(myURL, { headers: { Authorization: AuthStr } });
+    const options = {
+      // url: myURL.href,
+      method: met.toString(),
+      href: myURL.href,
+      origin: myURL.origin,
+      protocol: myURL.protocol,
+      username: myURL.username,
+      path: myURL.pathname.toString(),
+      password: myURL.password,
+      host: myURL.host,
+      hostname: myURL.hostname,
+      port: myURL.port,
+      pathname: myURL.pathname,
+      search: myURL.search,
+      hash: myURL.hash,
+      body: {
+        limit: 100,
+      },
+      headers,
       json: true,
     };
-  }
 
-  resultData() {
-    if (this.options.url)
-      return new Promise((resolve) => {
-        http.request(this.options, (res) => {
-          console.log(this.options);
+    if (myURL.href) {
+      return new Promise((resolve, request) => {
+        let body = '';
+        // console.log(options);
+
+        const req = http.request(options, (res) => {
+          // console.log(`statusCode: ${res.statusCode}`)
+
           res.setEncoding('utf8');
-          let fullData = '';
-          res.on('data', (chank) => {
-            fullData += chank;
-          });
-          console.log(fullData);
-          res.on('end', () => {
-            res.data = fullData;
 
-            resolve(res);
+          res.on('data', (data) => {
+            body += data;
+          });
+
+          res.on('end', () => {
+            try {
+              if (body) resolve(JSON.parse(body));
+            } catch (error) {
+              console.log(error);
+            }
           });
         });
-      });
 
+        req.on('error', (error) => {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          request({ message: 'Internal error occurred' });
+          console.log(error);
+        });
+
+        req.end();
+      });
+    }
     return false;
   }
 
-  async response() {
+  async response(url, met = 'get', limit = undefined) {
     try {
-      const res = await this.resultData();
-      const random = Math.floor(Math.random() * 3);
-      if (random === 1) {
-        throw new Error(
-          JSON.stringify({
-            message: 'Internal error occurred',
-          }),
-        );
-      }
+      const res = await this.resultData(url, met, limit);
       return res;
     } catch (error) {
-      if (error.message) return JSON.parse(error.message);
-      return JSON.parse(error);
+      return error;
     }
   }
 }

@@ -1,5 +1,4 @@
 const axios = require('axios');
-const qs = require('qs');
 
 const axiosRetry = require('axios-retry');
 
@@ -14,28 +13,23 @@ const User = require('../src/DB/user');
 
 const AuthStr = `Basic ${Buffer.from(`${User.user}:${User.pass}`).toString('base64')}`;
 class Axios {
-  constructor(url, met = 'get', limit = undefined) {
-    this.limit = limit;
-    this.url = url;
-    this.method = met;
-    this.options = {
-      method: this.method,
-      url: this.url,
-      data: qs.stringify({
-        limit: this.limit,
-      }),
-      headers: { Authorization: AuthStr },
-    };
-  }
-
-  resultData() {
-    if (this.options.url)
+  // eslint-disable-next-line class-methods-use-this
+  resultData(url, met, limit) {
+    if (url)
       return new Promise((resolve, reject) => {
-        axios(this.options)
+        axios({
+          method: met,
+          url,
+          data: {
+            limit,
+          },
+          headers: { Authorization: AuthStr },
+        })
           .then((result) => {
             resolve(result.data);
           })
-          .catch(() => {
+          .catch((e) => {
+            if (e) reject(JSON.stringify(e.response.data));
             reject(JSON.stringify({ message: 'error axios' }));
           });
       });
@@ -43,17 +37,9 @@ class Axios {
     return false;
   }
 
-  async response() {
+  async response(url, met = 'get', limit = undefined) {
     try {
-      const res = await this.resultData();
-      const random = Math.floor(Math.random() * 3);
-      if (random === 1) {
-        throw new Error(
-          JSON.stringify({
-            message: 'Internal error occurred',
-          }),
-        );
-      }
+      const res = await this.resultData(url, met, limit);
       return res;
     } catch (error) {
       if (error.message) return JSON.parse(error.message);
