@@ -1,79 +1,66 @@
 const http = require('http');
-
 const User = require('../src/DB/user');
 
 const AuthStr = `Basic ${Buffer.from(`${User.user}:${User.pass}`).toString('base64')}`;
 
 class HttpRequest {
-  // eslint-disable-next-line class-methods-use-this
-  resultData(url, met, limit) {
-    const myURL = new URL(url);
-    let headers;
-    if (limit === undefined) {
-      headers = { Authorization: AuthStr };
-    } else headers = { Authorization: AuthStr, limit };
-    //  console.log(myURL);
-    // const options = url2.format(myURL, { headers: { Authorization: AuthStr } });
-    const options = {
-      // url: myURL.href,
-      method: met.toString(),
-      href: myURL.href,
-      origin: myURL.origin,
-      protocol: myURL.protocol,
-      username: myURL.username,
-      path: myURL.pathname.toString(),
-      password: myURL.password,
-      host: myURL.host,
-      hostname: myURL.hostname,
-      port: myURL.port,
-      pathname: myURL.pathname,
-      search: myURL.search,
-      hash: myURL.hash,
-      body: {
-        limit: 100,
-      },
-      headers,
-      json: true,
-    };
-
-    if (myURL.href) {
-      return new Promise((resolve, request) => {
-        let body = '';
-        // console.log(options);
-
-        const req = http.request(options, (res) => {
-          // console.log(`statusCode: ${res.statusCode}`)
-
-          res.setEncoding('utf8');
-
-          res.on('data', (data) => {
-            body += data;
-          });
-
-          res.on('end', () => {
-            try {
-              if (body) resolve(JSON.parse(body));
-            } catch (error) {
-              console.log(error);
-            }
-          });
-        });
-
-        req.on('error', (error) => {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          request({ message: 'Internal error occurred' });
-          console.log(error);
-        });
-
-        req.end();
-      });
-    }
-    return false;
+  constructor() {
+    this.repeat = 0;
+    this.url = '';
+    this.met = '';
+    this.limit = 0;
   }
 
-  async response(url, met = 'get', limit = undefined) {
+  resultData(url, met, limit) {
+    const myURL = new URL(url);
+    const options = {
+      hostname: '127.0.0.1',
+      port: myURL.port,
+      path: myURL.pathname + myURL.search,
+      method: met,
+      body: { limit },
+      search: myURL.search,
+      headers: { Authorization: AuthStr },
+      json: true,
+    };
+    return new Promise((resolve, request) => {
+      let body = '';
+      const req = http.request(options, (res) => {
+        res.setEncoding('utf8');
+        res.on('data', (data) => {
+          body += data;
+        });
+        res.on('end', () => {
+          if (res.statusCode !== 200) {
+            if (this.repeat !== 3) {
+              this.repeat += 1;
+              this.response(this.url, this.met, this.limit);
+            } else {
+              this.repeat = 0;
+              resolve(body);
+            }
+          } else {
+            request(body);
+          }
+        });
+      });
+      req.on('error', (error) => {
+        console.log(error);
+      });
+      req.write(JSON.stringify(options.body));
+      req.end();
+    });
+  }
+
+  async response(url, met, limit) {
+    this.url = url;
+    this.met = met || 'GET';
+    this.limit = limit || undefined;
+
     try {
-      const res = await this.resultData(url, met, limit);
+      const res = await this.resultData(this.url, this.met, this.limit);
+      // console.log(res);
+
       return res;
     } catch (error) {
       return error;

@@ -1,9 +1,7 @@
 /* eslint-disable guard-for-in */
 const http = require('http');
-// const querystring = require('querystring');
 const os = require('os');
 const url = require('url');
-// const bodyParser = require('body-parser');
 const auth = require('./auth');
 
 const PORT = process.env.PORT || 4000;
@@ -11,6 +9,7 @@ const PORT = process.env.PORT || 4000;
 let totalMem;
 let freeMem;
 let busyMem;
+let checkAuthorization = false;
 
 function randomError() {
   const random = Math.floor(Math.random() * 3);
@@ -35,42 +34,28 @@ let limitNum;
 
 http
   .createServer(async (req, res) => {
+    function error500() {
+      res.statusCode = 500;
+      res.end(JSON.stringify({ message: 'Internal error occurred' }));
+    }
+
     function authorization() {
       if (!auth(req.headers.authorization)) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');
-
         try {
-          res.write(
+          res.end(
             JSON.stringify({
               message: 'Unauthorized',
             }),
           );
+          return false;
         } catch (error) {
           console.error(`error JSON ${error}`);
         }
-        res.end();
-        return false;
       }
       return true;
     }
-
-    async function error500() {
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'application/json');
-      try {
-        res.write(
-          JSON.stringify({
-            message: 'Internal error occurred',
-          }),
-        );
-      } catch (error) {
-        console.error(error);
-      }
-      res.end();
-    }
-
-    let checkAuthorization;
 
     switch (req.url && req.url.split('?')[0]) {
       // check url limit
@@ -78,7 +63,8 @@ http
       case '/limit':
         reBootData();
         try {
-          checkAuthorization = await authorization();
+          //
+          checkAuthorization = authorization();
         } catch (error) {
           console.error(`error authorization, ${error} `);
         }
@@ -110,13 +96,13 @@ http
                 res.statusCode = 200;
                 try {
                   randomError();
-                  res.write(
+                  res.end(
                     JSON.stringify({
                       message: 'New value for minimum free memory limit is not valid number',
                     }),
                   );
                 } catch (error) {
-                  await error500();
+                  error500();
                   console.error(`error JSON, ${error}`);
                 }
                 res.end();
@@ -126,25 +112,22 @@ http
                 const message = `Minimum free memory limit is successfully set to ${numResult} MB`;
                 try {
                   randomError();
-                  res.write(
+                  res.end(
                     JSON.stringify({
                       message,
                     }),
                   );
                 } catch (error) {
-                  await error500();
+                  error500();
                   console.error(`error JSON, ${error}`);
                 }
-                res.end();
               }
             });
           } else {
-            await error500();
-            res.end();
+            error500();
           }
         } else {
-          await error500();
-          res.end();
+          error500();
         }
         break;
       // -----------------------------------------------------------------------
@@ -153,7 +136,7 @@ http
       case '/metrics':
         reBootData();
         try {
-          checkAuthorization = await authorization();
+          checkAuthorization = authorization();
         } catch (error) {
           console.log(`error authorization, ${error} `);
         }
@@ -168,23 +151,23 @@ http
               } catch (error) {
                 console.error(`error query, ${query}`);
               }
+
               if (query.filter === 'total') {
                 res.setHeader('Content-Type', 'application/json');
                 res.statusCode = 200;
 
                 try {
                   randomError();
-                  res.write(
+                  res.end(
                     JSON.stringify({
                       message: 'OK',
                       total: totalMem,
                     }),
                   );
                 } catch (error) {
-                  await error500();
+                  error500();
                   console.error(`error JSON, ${error}`);
                 }
-                res.end();
               } else if (query.filter === 'free') {
                 let message = 'OK';
                 if (freeMem < Number(limitNum))
@@ -193,7 +176,7 @@ http
                 res.statusCode = 200;
                 try {
                   randomError();
-                  res.write(
+                  res.end(
                     JSON.stringify({
                       message,
                       free: freeMem,
@@ -203,27 +186,28 @@ http
                   await error500();
                   console.error(`error JSON, ${error}`);
                 }
-                res.end();
               } else if (query.filter === 'allocated') {
-                res.setHeader('Content-Type', 'application/json');
-                res.statusCode = 200;
+                // res.setHeader('Content-Type', 'application/json');
+
                 try {
-                  randomError();
-                  res.write(
+                  // randomError();
+
+                  res.statusCode = 200;
+                  res.end(
                     JSON.stringify({
                       message: 'OK',
                       allocated: busyMem,
                     }),
                   );
                 } catch (error) {
-                  await error500();
+                  error500();
                   console.error(`error JSON, ${error}`);
                 }
-                res.end();
+                //  res.end();
               } else {
-                await error500();
+                error500();
               }
-              res.end();
+
               break;
             } else {
               // if the free memory is less than the limit, reassign the message
@@ -234,7 +218,7 @@ http
               res.statusCode = 200;
               try {
                 randomError();
-                res.write(
+                res.end(
                   JSON.stringify({
                     message,
                     total: totalMem,
@@ -243,10 +227,11 @@ http
                   }),
                 );
               } catch (error) {
-                await error500();
-                console.error(`error JSON, ${error}`);
+                error500();
+                // console.log('ff');
+                console.error(`error JSON1, ${error}`);
               }
-              res.end();
+              // res.end();
             }
           }
         } else await error500();

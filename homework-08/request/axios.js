@@ -1,9 +1,8 @@
 const axios = require('axios');
-
 const axiosRetry = require('axios-retry');
 
 axiosRetry(axios, {
-  retries: 1,
+  retries: 3,
   retryDelay: (retryCount) => {
     return retryCount * 100;
   },

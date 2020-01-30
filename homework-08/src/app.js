@@ -4,7 +4,7 @@ const RequestNative = require('../request/requestNative');
 const HttpRequest = require('../request/httpRequest');
 
 const limit = 233;
-const timer = 5000;
+const timer = 10000;
 
 // endpoint axios
 const Axios = new AxiosRequest();
@@ -133,7 +133,7 @@ switch (choiceOfRequest) {
       Http.response(endpointNumHttpRequest1, 'POST', limit)
         .then((x) => {
           console.log(`endpointNumHttpRequest1: `);
-          console.log(x);
+          console.log(JSON.parse(x));
         })
         .catch((e) => {
           console.log(e);
@@ -142,7 +142,7 @@ switch (choiceOfRequest) {
       Http.response(endpointNumHttpRequest2)
         .then((x) => {
           console.log(`endpointNumHttpRequest2: `);
-          console.log(x);
+          console.log(JSON.parse(x));
         })
         .catch((e) => {
           console.log(e);
@@ -150,7 +150,7 @@ switch (choiceOfRequest) {
       Http.response(endpointNumHttpRequest3)
         .then((x) => {
           console.log(`endpointNumHttpRequest3: `);
-          console.log(x);
+          console.log(JSON.parse(x));
         })
         .catch((e) => {
           console.log(e);
@@ -158,7 +158,7 @@ switch (choiceOfRequest) {
       Http.response(endpointNumHttpRequest4)
         .then((x) => {
           console.log(`endpointNumHttpRequest4: `);
-          console.log(x);
+          console.log(JSON.parse(x));
         })
         .catch((e) => {
           console.log(e);
@@ -166,7 +166,7 @@ switch (choiceOfRequest) {
       Http.response(endpointNumHttpRequest5)
         .then((x) => {
           console.log(`endpointNumHttpRequest5: `);
-          console.log(x);
+          console.log(JSON.parse(x));
         })
         .catch((e) => {
           console.log(e);

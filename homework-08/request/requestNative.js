@@ -21,6 +21,7 @@ const User = require('../src/DB/user');
 const AuthStr = `Basic ${Buffer.from(`${User.user}:${User.pass}`).toString('base64')}`;
 
 class RequestNative {
+  // eslint-disable-next-line class-methods-use-this
   resultData(url, met, limit) {
     if (url)
       return new Promise((resolve, reject) => {
@@ -30,21 +31,18 @@ class RequestNative {
           body: { limit },
           headers: { Authorization: AuthStr },
           json: true,
-          transform(body, response) {
-            if (response.headers['content-type'] === 'application/json') {
-              response.body = JSON.parse(body);
-            }
-            return response;
-          },
+          // transform(body, response) {
+          //   if (response.headers['content-type'] === 'application/json') {
+          //     response.body = JSON.parse(body);
+          //   }
+          //   return response;
+          // },
         })
           .then((result) => {
             resolve(result);
           })
           .catch((e) => {
-            if (e) {
-              if (this.delay !== 0) this.delay -= 1;
-              reject(JSON.stringify(e.response.body));
-            }
+            if (e) reject(JSON.stringify(e.response.body));
             reject(JSON.stringify({ message: 'error axios' }));
           });
       });
