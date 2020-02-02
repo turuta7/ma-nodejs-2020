@@ -2,6 +2,7 @@
 const http = require('http');
 const os = require('os');
 const url = require('url');
+const querystring = require('querystring');
 const auth = require('./auth');
 
 const PORT = process.env.PORT || 4000;
@@ -35,6 +36,7 @@ let limitNum;
 http
   .createServer(async (req, res) => {
     function error500() {
+      res.setHeader('Content-Type', 'application/json');
       res.statusCode = 500;
       res.end(JSON.stringify({ message: 'Internal error occurred' }));
     }
@@ -75,19 +77,21 @@ http
             req.on('data', (chunk) => {
               body += chunk.toString();
             });
-
             req.on('end', async () => {
               res.setHeader('Content-Type', 'application/json');
               res.statusCode = 200;
               let fullBody;
               try {
-                if (body) fullBody = JSON.parse(body);
-                else fullBody = { limit: req.headers.limit };
+                fullBody = JSON.parse(body);
+                // else fullBody = { limit: req.headers.limit };
+                console.log(fullBody);
               } catch (error) {
+                const parseBody = JSON.parse(JSON.stringify(querystring.parse(body)));
+                fullBody = parseBody;
                 console.error(`error JSON FULLBODY, ${error}`);
               }
               if (fullBody.limit) {
-                limitNum = fullBody.limit;
+                limitNum = Number(fullBody.limit);
               }
               const numResult = +limitNum;
               // number check value
