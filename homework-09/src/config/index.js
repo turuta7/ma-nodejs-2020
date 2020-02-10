@@ -1,5 +1,5 @@
 module.exports = {
   port: process.env.PORT || 3000,
   filePath: './static/image.jpg',
-  speedMb: 1,
+  speedByte: 1048576, // 1024*1024
 };

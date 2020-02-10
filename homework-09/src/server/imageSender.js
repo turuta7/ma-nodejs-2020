@@ -7,7 +7,7 @@ const config = require('../config');
 function sendJPEG(res) {
   pipeline(
     fs.createReadStream(config.filePath),
-    new TransmissionRateSlowdown(config.speedMb),
+    new TransmissionRateSlowdown(config.speedByte),
     res,
     (err) => {
       if (err) {
