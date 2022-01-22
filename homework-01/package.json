@@ -24,6 +24,6 @@
     "prettier": "^1.18.2"
   },
   "dependencies": {
-    "nanoid": "^2.1.6"
+    "nanoid": "^3.1.31"
   }
 }
